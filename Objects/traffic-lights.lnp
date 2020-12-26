@@ -1,0 +1,3 @@
+".\Objects\main.obj" 
+TO ".\Objects\traffic-lights" 
+PRINT(".\Listings\traffic-lights.m51") RAMSIZE(256) 
