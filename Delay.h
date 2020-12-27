@@ -5,7 +5,7 @@
 
 
 void sEOS_Init_Timer2(const tByte TICK_MS);
-void delay_50ms_Timer();
+void delay_1ms_Timer();
 void Delay_1s();
 void Delay_s(tWord);
 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   DELAY                                                             12/26/2020 13:26:07 PAGE 1   
+C51 COMPILER V9.60.0.0   DELAY                                                             12/27/2020 16:22:24 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE DELAY
@@ -14,8 +14,8 @@ line level    source
    4          #include "DataTypes.h"
    5          
    6          
-   7          /* The timer function to calculate 50ms delay */
-   8          void delay_50ms_Timer(){
+   7          /* The timer function to calculate 1ms delay */
+   8          void delay_1ms_Timer(){
    9   1        // TIMER 2
   10   1        T2CON = 0x04;     // Load Timer 2 Control Register
   11   1        
@@ -23,33 +23,33 @@ line level    source
   13   1        RCAP2H  = 0xFC;     // Load Timer 2 reload Capt. reg. high byte
   14   1        TL2     = 0x18;//0xB0;        // Load Timer 2 Low byte
   15   1        RCAP2L  = 0x18;     // Load Timer 2 reload Capt. reg. low byte
-  16   1        
-  17   1        //IT0 = 1;          // EX0 INT0 Edge Triggred
-  18   1        
-  19   1        // Timer 2 interrupt is enabled, and ISR will be called
-  20   1        // whenever the timer overflows – see below.
-  21   1        ET2=1;
-  22   1        TR2 = 1;          // Start Timer 2
-  23   1        EA=1;
-  24   1      
-  25   1      }
+  16   1          
+  17   1        // Timer 2 interrupt is enabled, and ISR will be called
+  18   1        // whenever the timer overflows – see below.
+  19   1        ET2=1;
+  20   1        TR2 = 1;          // Start Timer 2
+  21   1        EA=1;
+  22   1        //IE=0xA0;
+  23   1      }
+  24          
+  25          
   26          
-  27          
-  28          
-  29          void Delay_1s(){
-  30   1        tWord i;
-  31   1        for (i=0;i<32000;i++)
-  32   1          delay_50ms_Timer();
-  33   1      }
-  34          
-  35          
-  36          void Delay_s(tWord x)
-  37          {
-  38   1        tWord i;
-  39   1        for(i=0;i<x;i++){
-  40   2          Delay_1s();
-  41   2        }
-  42   1      }
+  27          void Delay_1s(){
+  28   1        tWord i;
+  29   1        for (i=0;i<32000;i++)
+  30   1          delay_1ms_Timer();
+  31   1      }
+  32          
+  33          
+  34          void Delay_s(tWord x)
+  35          {
+  36   1        tWord i;
+  37   1        for(i=0;i<x;i++){
+  38   2          Delay_1s();
+  39   2        }
+  40   1      }
+  41          
+  42          
   43          
   44          
   45          
@@ -58,63 +58,61 @@ line level    source
   48          
   49          
   50          
-  51          
-  52          
-  53          /*------------------------------------------------------------*-
-  54          sEOS_Init_Timer2()
-C51 COMPILER V9.60.0.0   DELAY                                                             12/26/2020 13:26:07 PAGE 2   
+  51          /*------------------------------------------------------------*-
+  52          sEOS_Init_Timer2()
+  53          Sets up Timer 2 to drive the simple EOS.
+  54          Parameter gives tick interval in MILLISECONDS.
+C51 COMPILER V9.60.0.0   DELAY                                                             12/27/2020 16:22:24 PAGE 2   
 
-  55          Sets up Timer 2 to drive the simple EOS.
-  56          Parameter gives tick interval in MILLISECONDS.
-  57          Max tick interval is ~60ms (12 MHz oscillator).
-  58          Note: Precise tick intervals are only possible with certain
-  59          oscillator / tick interval combinations. If timing is
-  60          important, you should check the timing calculations manually.
-  61          -*------------------------------------------------------------*/
-  62          /*
-  63          #define OSC_FREQ 12000000
-  64          #define OSC_PER_INST 12
-  65          void sEOS_Init_Timer2(const tByte TICK_MS)
-  66          {
-  67              tLong Inc;
-  68              tWord Reload_16;
-  69              tByte Reload_08H, Reload_08L;
-  70              
-  71              // Timer 2 is configured as a 16-bit timer,
-  72              // which is automatically reloaded when it overflows
-  73              T2CON = 0x04; // Load Timer 2 control register
-  74            
-  75              // Number of timer increments required (max 65536)
-  76              Inc = ((tLong)TICK_MS * (OSC_FREQ/1000)) / (tLong)OSC_PER_INST;
-  77              
-  78              // 16-bit reload value;
-  79              Reload_16 = (tWord)(65536UL - Inc);
-  80              //(tWord)(65536UL - Inc);
-  81              // 8-bit reload values (High & Low)
-  82              Reload_08H = (tByte)(Reload_16 / 256);
-  83              Reload_08L = (tByte)(Reload_16 % 256);
-  84              
-  85              // Used for manually checking timing (in simulator)
-  86              //P2 = Reload_08H;
-  87              //P3 = Reload_08L;
-  88              TH2 = Reload_08H; // Load T2 high byte
-  89              RCAP2H = Reload_08H; // Load T2 reload capt. reg. high byte
-  90              TL2 = Reload_08L; // Load T2 low byte
-  91              RCAP2L = Reload_08L; // Load T2 reload capt. reg. low byte
-  92              
-  93              
-  94              // Timer 2 interrupt is enabled, and ISR will be called
-  95              // whenever the timer overflows.
-  96              ET2 = 1;
-  97              
-  98              
-  99              // Start Timer 2 running
- 100              TR2 = 1;
- 101              EA = 1; // Globally enable interrupts
+  55          Max tick interval is ~60ms (12 MHz oscillator).
+  56          Note: Precise tick intervals are only possible with certain
+  57          oscillator / tick interval combinations. If timing is
+  58          important, you should check the timing calculations manually.
+  59          -*------------------------------------------------------------*/
+  60          /*
+  61          #define OSC_FREQ 12000000
+  62          #define OSC_PER_INST 12
+  63          void sEOS_Init_Timer2(const tByte TICK_MS)
+  64          {
+  65              tLong Inc;
+  66              tWord Reload_16;
+  67              tByte Reload_08H, Reload_08L;
+  68              
+  69              // Timer 2 is configured as a 16-bit timer,
+  70              // which is automatically reloaded when it overflows
+  71              T2CON = 0x04; // Load Timer 2 control register
+  72            
+  73              // Number of timer increments required (max 65536)
+  74              Inc = ((tLong)TICK_MS * (OSC_FREQ/1000)) / (tLong)OSC_PER_INST;
+  75              
+  76              // 16-bit reload value;
+  77              Reload_16 = (tWord)(65536UL - Inc);
+  78              //(tWord)(65536UL - Inc);
+  79              // 8-bit reload values (High & Low)
+  80              Reload_08H = (tByte)(Reload_16 / 256);
+  81              Reload_08L = (tByte)(Reload_16 % 256);
+  82              
+  83              // Used for manually checking timing (in simulator)
+  84              //P2 = Reload_08H;
+  85              //P3 = Reload_08L;
+  86              TH2 = Reload_08H; // Load T2 high byte
+  87              RCAP2H = Reload_08H; // Load T2 reload capt. reg. high byte
+  88              TL2 = Reload_08L; // Load T2 low byte
+  89              RCAP2L = Reload_08L; // Load T2 reload capt. reg. low byte
+  90              
+  91              
+  92              // Timer 2 interrupt is enabled, and ISR will be called
+  93              // whenever the timer overflows.
+  94              ET2 = 1;
+  95              
+  96              
+  97              // Start Timer 2 running
+  98              TR2 = 1;
+  99              EA = 1; // Globally enable interrupts
+ 100          
+ 101          }
  102          
- 103          }
- 104          
- 105          */
+ 103          */
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
@@ -126,8 +124,6 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
-
-C51 COMPILER V9.60.0.0   DELAY                                                             12/26/2020 13:26:07 PAGE 3   
 
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

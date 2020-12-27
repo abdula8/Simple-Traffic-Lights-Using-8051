@@ -4,8 +4,8 @@
 #include "DataTypes.h"
 
 
-/* The timer function to calculate 50ms delay */
-void delay_50ms_Timer(){
+/* The timer function to calculate 1ms delay */
+void delay_1ms_Timer(){
 	// TIMER 2
 	T2CON = 0x04; 		// Load Timer 2 Control Register
 	
@@ -13,15 +13,13 @@ void delay_50ms_Timer(){
 	RCAP2H 	= 0xFC; 		// Load Timer 2 reload Capt. reg. high byte
 	TL2 		= 0x18;//0xB0;  			// Load Timer 2 Low byte
 	RCAP2L	= 0x18; 		// Load Timer 2 reload Capt. reg. low byte
-	
-	//IT0 = 1; 					// EX0 INT0 Edge Triggred
-	
+		
 	// Timer 2 interrupt is enabled, and ISR will be called
 	// whenever the timer overflows – see below.
 	ET2=1;
 	TR2 = 1;	 				// Start Timer 2
 	EA=1;
-
+	//IE=0xA0;
 }
 
 
@@ -29,7 +27,7 @@ void delay_50ms_Timer(){
 void Delay_1s(){
 	tWord i;
 	for (i=0;i<32000;i++)
-		delay_50ms_Timer();
+		delay_1ms_Timer();
 }
 
 
